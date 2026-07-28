@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { PromptContext } from "../context/PromptContext";
+import { PromptContext } from "../context/promptContext";
 
 export const usePrompt = () => {
   const context = useContext(PromptContext);

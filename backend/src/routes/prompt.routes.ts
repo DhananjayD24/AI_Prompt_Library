@@ -17,6 +17,10 @@ router.post("/", createPrompt);
 // Get All Prompts
 router.get("/", getPrompts);
 
+// Import/export must be registered before /:id so "export" is not treated as an id.
+router.get("/export", exportPrompts);
+router.post("/import", importPrompts);
+
 // Get Single Prompt
 router.get("/:id", getPromptById);
 
@@ -28,9 +32,5 @@ router.delete("/:id", deletePrompt);
 
 // Duplicate Prompt
 router.post("/:id/duplicate", duplicatePrompt);
-
-//import-export 
-router.get("/export", exportPrompts);
-router.post("/import", importPrompts);
 
 export default router;

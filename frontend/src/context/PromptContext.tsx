@@ -1,35 +1,9 @@
-import { createContext, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { Prompt } from "../types/prompt";
 import type { PromptFormData } from "../schemas/prompt.schema";
-import {
-    getPrompts,
-    createPrompt,
-    updatePrompt,
-    deletePrompt,
-    duplicatePrompt,
-  } from "../services/prompt.service";
-
-export interface PromptContextType {
-  prompts: Prompt[];
-  loading: boolean;
-
-  fetchPrompts: (params?: {
-    search?: string;
-    category?: string;
-    favorite?: boolean;
-    sort?: string;
-  }) => Promise<void>;
-
-  createNewPrompt: (data: PromptFormData) => Promise<void>;
-
-  editPrompt: (id: string, data: PromptFormData) => Promise<void>;
-
-  removePrompt: (id: string) => Promise<void>;
-
-  duplicateExistingPrompt: (id: string) => Promise<void>;
-}
-
-export const PromptContext = createContext<PromptContextType | null>(null);
+import { createPrompt, deletePrompt, duplicatePrompt, getPrompts, updatePrompt } from "../services/prompt.service";
+import { PromptContext } from "./promptContext";
+import toast from "react-hot-toast";
 
 interface PromptProviderProps {
   children: React.ReactNode;
@@ -38,78 +12,41 @@ interface PromptProviderProps {
 export const PromptProvider = ({ children }: PromptProviderProps) => {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const fetchPrompts = async (params?: {
-    search?: string;
-    category?: string;
-    favorite?: boolean;
-    sort?: string;
-  }) => {
+  const fetchPrompts = useCallback(async (params?: { search?: string; category?: string; favorite?: boolean; sort?: string }) => {
     try {
       setLoading(true);
-  
-      const data = await getPrompts(params);
-  
-      setPrompts(data);
+      setError(null);
+      setPrompts(await getPrompts(params));
     } catch (error) {
       console.error(error);
+      setError("We couldn't load your prompts. Check that the backend is running and try again.");
     } finally {
       setLoading(false);
     }
-  };
-  const createNewPrompt = async (data: PromptFormData) => {
-    try {
-      await createPrompt(data);
-  
-      await fetchPrompts();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  const editPrompt = async (
-    id: string,
-    data: PromptFormData
-  ) => {
-    try {
-      await updatePrompt(id, data);
-  
-      await fetchPrompts();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  const removePrompt = async (id: string) => {
-    try {
-      await deletePrompt(id);
-  
-      await fetchPrompts();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  const duplicateExistingPrompt = async (id: string) => {
-    try {
-      await duplicatePrompt(id);
-  
-      await fetchPrompts();
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  }, []);
 
-  return (
-    <PromptContext.Provider
-      value={
-        {prompts,
-        loading,
-        fetchPrompts,
-        createNewPrompt,
-        editPrompt,
-        removePrompt,
-        duplicateExistingPrompt}
-      }
-    >
-      {children}
-    </PromptContext.Provider>
+  const createNewPrompt = useCallback(async (data: PromptFormData) => {
+    try { await createPrompt(data); await fetchPrompts(); toast.success("Prompt created"); } catch (error) { console.error(error); toast.error("Couldn’t create the prompt"); throw error; }
+  }, [fetchPrompts]);
+
+  const editPrompt = useCallback(async (id: string, data: PromptFormData) => {
+    try { await updatePrompt(id, data); await fetchPrompts(); toast.success("Prompt updated"); } catch (error) { console.error(error); toast.error("Couldn’t update the prompt"); throw error; }
+  }, [fetchPrompts]);
+
+  const removePrompt = useCallback(async (id: string) => {
+    try { await deletePrompt(id); await fetchPrompts(); toast.success("Prompt deleted"); } catch (error) { console.error(error); toast.error("Couldn’t delete the prompt"); throw error; }
+  }, [fetchPrompts]);
+
+  const duplicateExistingPrompt = useCallback(async (id: string) => {
+    try { await duplicatePrompt(id); await fetchPrompts(); toast.success("Prompt duplicated"); } catch (error) { console.error(error); toast.error("Couldn’t duplicate the prompt"); throw error; }
+  }, [fetchPrompts]);
+
+  const value = useMemo(
+    () => ({ prompts, loading, error, fetchPrompts, createNewPrompt, editPrompt, removePrompt, duplicateExistingPrompt }),
+    [prompts, loading, error, fetchPrompts, createNewPrompt, editPrompt, removePrompt, duplicateExistingPrompt],
   );
+
+  return <PromptContext.Provider value={value}>{children}</PromptContext.Provider>;
 };

@@ -16,6 +16,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/prompts" element={<PromptLibrary />} />
         <Route path="/favorites" element={<PromptLibrary favoritesOnly />} />
+        <Route path="/pinned" element={<PromptLibrary pinnedOnly />} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>

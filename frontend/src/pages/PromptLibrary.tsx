@@ -17,6 +17,7 @@ interface LayoutContext {
 }
 interface PromptLibraryProps {
   favoritesOnly?: boolean;
+  pinnedOnly?: boolean;
 }
 
 const getStoredOrder = (): string[] => {
@@ -33,7 +34,10 @@ const getStoredOrder = (): string[] => {
   }
 };
 
-export function PromptLibrary({ favoritesOnly = false }: PromptLibraryProps) {
+export function PromptLibrary({
+  favoritesOnly = false,
+  pinnedOnly = false,
+}: PromptLibraryProps) {
   const { openCreateModal, openEditModal } = useOutletContext<LayoutContext>();
   const { prompts, loading, error, fetchPrompts } = usePrompt();
   const [search, setSearch] = useState("");
@@ -56,14 +60,21 @@ export function PromptLibrary({ favoritesOnly = false }: PromptLibraryProps) {
     localStorage.setItem("prompt-library-order", JSON.stringify(manualOrder));
   }, [manualOrder]);
 
-  const heading = favoritesOnly ? "Favorites" : "All prompts";
+  const heading = favoritesOnly
+    ? "Favorites"
+    : pinnedOnly
+      ? "Pinned"
+      : "All prompts";
   const subtitle = favoritesOnly
     ? "The prompts you’ve marked for quick access."
-    : "Search, organize, and reuse your prompt collection.";
+    : pinnedOnly
+      ? "The prompts you’ve pinned for quick access."
+      : "Search, organize, and reuse your prompt collection.";
   const visiblePrompts = useMemo(() => {
     const normalizedSearch = debouncedSearch.trim().toLowerCase();
     return prompts
       .filter((prompt) => !favoritesOnly || prompt.favorite)
+      .filter((prompt) => !pinnedOnly || prompt.pinned)
       .filter((prompt) => !category || prompt.category === category)
       .filter(
         (prompt) =>
@@ -96,7 +107,15 @@ export function PromptLibrary({ favoritesOnly = false }: PromptLibraryProps) {
           new Date(first.createdAt).getTime()
         );
       });
-  }, [prompts, debouncedSearch, category, sort, favoritesOnly, manualOrder]);
+  }, [
+    prompts,
+    debouncedSearch,
+    category,
+    sort,
+    favoritesOnly,
+    pinnedOnly,
+    manualOrder,
+  ]);
 
   const reorderPrompts = (activeId: string, overId: string) => {
     setSort("custom");
@@ -168,13 +187,21 @@ export function PromptLibrary({ favoritesOnly = false }: PromptLibraryProps) {
       ) : visiblePrompts.length === 0 ? (
         <div className="library-state">
           <FilePlus2 size={30} aria-hidden="true" />
-          <h2>{favoritesOnly ? "No favorites yet" : "No prompts found"}</h2>
+          <h2>
+            {favoritesOnly
+              ? "No favorites yet"
+              : pinnedOnly
+                ? "No pinned prompts yet"
+                : "No prompts found"}
+          </h2>
           <p>
             {favoritesOnly
               ? "Mark a prompt as a favorite when you create or edit it."
-              : "Create a prompt or adjust your search and filters."}
+              : pinnedOnly
+                ? "Pin a prompt when you create or edit it."
+                : "Create a prompt or adjust your search and filters."}
           </p>
-          {!favoritesOnly && (
+          {!favoritesOnly && !pinnedOnly && (
             <button
               className="button button-primary"
               type="button"

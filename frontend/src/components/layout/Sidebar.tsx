@@ -1,4 +1,4 @@
-import { Heart, LayoutDashboard, LibraryBig, X } from "lucide-react";
+import { Heart, LayoutDashboard, LibraryBig, Pin, X } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 interface SidebarProps {
@@ -10,6 +10,7 @@ const navigation = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/prompts", label: "All prompts", icon: LibraryBig },
   { to: "/favorites", label: "Favorites", icon: Heart },
+  { to: "/pinned", label: "Pinned", icon: Pin },
 ];
 
 export function Sidebar({ open, onClose }: SidebarProps) {

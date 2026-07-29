@@ -1,13 +1,13 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
-import './index.css'
-import App from './App.tsx'
-import { PromptProvider } from './context/PromptContext.tsx'
-import { ThemeProvider } from './context/ThemeContext.tsx'
-import { Toaster } from 'react-hot-toast'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import "./index.css";
+import App from "./App.tsx";
+import { PromptProvider } from "./context/PromptContext.tsx";
+import { ThemeProvider } from "./context/ThemeContext.tsx";
+import { Toaster } from "react-hot-toast";
 
-createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <ThemeProvider>
@@ -18,4 +18,4 @@ createRoot(document.getElementById('root')!).render(
       </ThemeProvider>
     </BrowserRouter>
   </StrictMode>,
-)
+);

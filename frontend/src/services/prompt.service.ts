@@ -1,5 +1,5 @@
 import api from "./axios";
-import type { Prompt} from "../types/prompt";
+import type { Prompt } from "../types/prompt";
 import type { PromptFormData } from "../schemas/prompt.schema";
 
 interface ApiResponse<T> {

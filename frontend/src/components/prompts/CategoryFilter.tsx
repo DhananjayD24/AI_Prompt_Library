@@ -11,7 +11,11 @@ export function CategoryFilter({ value, onChange }: CategoryFilterProps) {
       <span className="sr-only">Filter by category</span>
       <select value={value} onChange={(event) => onChange(event.target.value)}>
         <option value="">All categories</option>
-        {CATEGORIES.map((category) => <option key={category} value={category}>{category}</option>)}
+        {CATEGORIES.map((category) => (
+          <option key={category} value={category}>
+            {category}
+          </option>
+        ))}
       </select>
     </label>
   );

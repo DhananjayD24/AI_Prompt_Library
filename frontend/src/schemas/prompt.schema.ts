@@ -19,7 +19,7 @@ export const promptSchema = z.object({
         .max(300, "Maximum 300 characters")
         .optional(),
 
-    category: z.enum([...(CATEGORIES as readonly string[]) ] as [string, ...string[]], {
+    category: z.enum([...(CATEGORIES as readonly string[])] as [string, ...string[]], {
         message: "Please select a category",
     }),
 

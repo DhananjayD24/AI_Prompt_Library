@@ -14,7 +14,9 @@ export function ImportExportActions() {
     try {
       setBusy("export");
       const prompts = await exportPrompts();
-      const blob = new Blob([JSON.stringify(prompts, null, 2)], { type: "application/json" });
+      const blob = new Blob([JSON.stringify(prompts, null, 2)], {
+        type: "application/json",
+      });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -25,7 +27,9 @@ export function ImportExportActions() {
     } catch (error) {
       console.error(error);
       toast.error("Couldn’t export prompts");
-    } finally { setBusy(null); }
+    } finally {
+      setBusy(null);
+    }
   };
 
   const importFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,23 +39,69 @@ export function ImportExportActions() {
     try {
       setBusy("import");
       const parsed: unknown = JSON.parse(await file.text());
-      if (!Array.isArray(parsed)) throw new Error("The JSON must contain an array of prompts.");
+      if (!Array.isArray(parsed))
+        throw new Error("The JSON must contain an array of prompts.");
       const validation = parsed.map((item) => promptSchema.safeParse(item));
-      const invalidCount = validation.filter((result) => !result.success).length;
-      if (invalidCount > 0) throw new Error(`${invalidCount} prompt${invalidCount === 1 ? " is" : "s are"} invalid.`);
-      await importPrompts(validation.map((result) => result.data as PromptFormData));
+      const invalidCount = validation.filter(
+        (result) => !result.success,
+      ).length;
+      if (invalidCount > 0)
+        throw new Error(
+          `${invalidCount} prompt${invalidCount === 1 ? " is" : "s are"} invalid.`,
+        );
+      await importPrompts(
+        validation.map((result) => result.data as PromptFormData),
+      );
       await fetchPrompts();
-      toast.success(`${validation.length} prompt${validation.length === 1 ? "" : "s"} imported`);
+      toast.success(
+        `${validation.length} prompt${validation.length === 1 ? "" : "s"} imported`,
+      );
     } catch (error) {
       console.error(error);
-      toast.error(error instanceof Error ? error.message : "Couldn’t import prompts");
-    } finally { setBusy(null); }
+      toast.error(
+        error instanceof Error ? error.message : "Couldn’t import prompts",
+      );
+    } finally {
+      setBusy(null);
+    }
   };
 
   const isBusy = busy !== null;
-  return <div className="import-export-actions">
-    <input ref={inputRef} className="sr-only" type="file" accept="application/json,.json" onChange={(event) => void importFile(event)} />
-    <button className="button button-secondary import-export-button" type="button" onClick={() => inputRef.current?.click()} disabled={isBusy}>{busy === "import" ? <LoaderCircle className="spin" size={17} /> : <FileUp size={17} />} Import</button>
-    <button className="button button-secondary import-export-button" type="button" onClick={() => void downloadExport()} disabled={isBusy}>{busy === "export" ? <LoaderCircle className="spin" size={17} /> : <Download size={17} />} Export</button>
-  </div>;
+  return (
+    <div className="import-export-actions">
+      <input
+        ref={inputRef}
+        className="sr-only"
+        type="file"
+        accept="application/json,.json"
+        onChange={(event) => void importFile(event)}
+      />
+      <button
+        className="button button-secondary import-export-button"
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        disabled={isBusy}
+      >
+        {busy === "import" ? (
+          <LoaderCircle className="spin" size={17} />
+        ) : (
+          <FileUp size={17} />
+        )}{" "}
+        Import
+      </button>
+      <button
+        className="button button-secondary import-export-button"
+        type="button"
+        onClick={() => void downloadExport()}
+        disabled={isBusy}
+      >
+        {busy === "export" ? (
+          <LoaderCircle className="spin" size={17} />
+        ) : (
+          <Download size={17} />
+        )}{" "}
+        Export
+      </button>
+    </div>
+  );
 }
